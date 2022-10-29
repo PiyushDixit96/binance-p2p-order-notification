@@ -28,6 +28,7 @@ def send_message(chat_id, text):
 used_orders = {}
 err_count = 0
 run = True
+logger.info(f'Bot Started P2P Order Tracking for Last 33 Minutes Only.')
 while run:
     try:
         for ty in ["BUY", "SELL"]:
