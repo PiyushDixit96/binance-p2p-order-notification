@@ -35,7 +35,7 @@ while run:
             end = int(datetime.utcnow().timestamp() * 1000)
             start = end - 2000000  # almost 33 minutes
             logger.debug(f'Start timestamp: {start} and End timestamp: {end}')
-            result = client.get_c2c_trade_history(tradeType=ty, startTimestamp=start, endTimestamp=end)
+            result = client.get_c2c_trade_history(tradeType=ty, startDate=start, endDate=end)
             logger.debug(f'Trade History Result: {result}')
             for i in result['data']:
                 ex = used_orders.get(i['orderNumber'])
