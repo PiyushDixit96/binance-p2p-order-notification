@@ -33,8 +33,8 @@ def startup_update(database: dict):
             database[k['orderNumber']] = k['orderStatus']
     else:
         logger.info(f'Startup Trade Database Updated: {database}')
-      
-    
+
+
 used_orders = {}
 err_count = 0
 run = True
