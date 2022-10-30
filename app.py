@@ -25,21 +25,33 @@ def send_message(chat_id, text):
     return ok
 
 
+def startup_update(database: dict):
+    for trd in ["BUY", "SELL"]:
+        res = client.get_c2c_trade_history(tradeType=trd)
+        logger.debug(f'Startup Trade History Result: {res}')
+        for k in res['data']:
+            database[k['orderNumber']] = k['orderStatus']
+    else:
+        logger.info(f'Startup Trade Database Updated: {database}')
+      
+    
 used_orders = {}
 err_count = 0
 run = True
-logger.info(f'Bot Started P2P Order Tracking for Last 33 Minutes Only.')
+logger.info(f'Bot Started P2P Order Tracking for Last 45 Minutes Only.')
+startup_update(used_orders)
 while run:
     try:
         for ty in ["BUY", "SELL"]:
             end = int(datetime.utcnow().timestamp() * 1000)
-            start = end - 2000000  # almost 33 minutes
+            start = end - 2700000  # almost 45 minutes
             logger.debug(f'Start timestamp: {start} and End timestamp: {end}')
             result = client.get_c2c_trade_history(tradeType=ty, startDate=start, endDate=end)
             logger.debug(f'Trade History Result: {result}')
             for i in result['data']:
                 ex = used_orders.get(i['orderNumber'])
                 if ex is None:
+                    logger.info(f"New Update:- Order No.: {i['orderNumber']} | Status: {i['orderStatus']}")
                     txt = (
                         f"Status: {i['orderStatus']}\n"
                         f"Type: {i['tradeType']}\n"
@@ -54,6 +66,7 @@ while run:
                     if ex == i['orderStatus']:
                         pass
                     else:
+                        logger.info(f"New Update:- Order No.: {i['orderNumber']} | Status: {i['orderStatus']}")
                         txt = (
                             f"Status: {i['orderStatus']}\n"
                             f"Type: {i['tradeType']}\n"
