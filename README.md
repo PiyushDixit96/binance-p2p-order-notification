@@ -20,7 +20,7 @@
 ### Run Locally
 - Install Python
 - Download or Clone Repo and open it's folder.
-- Create .env in root folder and copy , paste below code and fill details you saved before
+- Create .env file in root folder and copy , paste below code and fill details you saved before
  ```sh
 TELEGRAM_TOKEN=your telegram token
 TELEGRAM_CHAT_ID=your telegram chat id
