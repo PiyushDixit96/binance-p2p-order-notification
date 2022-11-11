@@ -75,7 +75,7 @@ while run:
                         f"Crypto Amount: {float(i['amount'])} {i['asset']}\n"
                         f"Order No.: <a href='{link}{orderNumber}'>{orderNumber}</a>"
                     )
-                    used_orders[orderStatus] = orderStatus
+                    used_orders[orderNumber] = orderStatus
                     send_message(TELEGRAM_CHAT_ID, txt)
                 else:
                     if ex == orderStatus:
@@ -90,7 +90,7 @@ while run:
                             f"Crypto Amount: {float(i['amount'])} {i['asset']}\n"
                             f"Order No.: <a href='{link}{orderNumber}'>{orderNumber}</a>"
                         )
-                        used_orders[orderStatus] = orderStatus
+                        used_orders[orderNumber] = orderStatus
                         send_message(TELEGRAM_CHAT_ID, txt)
         time.sleep(1)
     except Exception as e:
