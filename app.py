@@ -14,7 +14,7 @@ client = Client(BINANCE_KEY, BINANCE_SECRET)
 
 
 def send_message(chat_id, text):
-    data = dict(chat_id=chat_id, text=text, parse_mode="html")
+    data = dict(chat_id=chat_id, text=text, parse_mode="html", disable_web_page_preview=True)
     ok = requests.post(f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage", params=data).json()
     logger.debug(f'SendMessage Result: {ok}')
     if ok['ok']:
@@ -35,9 +35,21 @@ def startup_update(database: dict):
         logger.info(f'Startup Trade Database Updated: {database}')
 
 
+status = {
+    "COMPLETED": "COMPLETED",
+    "PENDING": "PENDING",
+    "TRADING": "TRADING",
+    "BUYER_PAYED": "BUYER PAYED",
+    "DISTRIBUTING": "DISTRIBUTING",
+    "IN_APPEAL": "IN APPEAL",
+    "CANCELLED": "CANCELLED",
+    "CANCELLED_BY_SYSTEM": "CANCELLED BY SYSTEM"
+}
+side = {"BUY": "BUY", "SELL": "SELL"}
 used_orders = {}
 err_count = 0
 run = True
+link = "https://p2p.binance.com/en/fiatOrderDetail?orderNo="
 logger.info(f'Bot Started P2P Order Tracking for Last 45 Minutes Only.')
 startup_update(used_orders)
 while run:
@@ -49,33 +61,36 @@ while run:
             result = client.get_c2c_trade_history(tradeType=ty, startDate=start, endDate=end)
             logger.debug(f'Trade History Result: {result}')
             for i in result['data']:
-                ex = used_orders.get(i['orderNumber'])
+                # Important values
+                orderStatus = i['orderStatus']
+                orderNumber = i['orderNumber']
+                ex = used_orders.get(orderNumber)
                 if ex is None:
-                    logger.info(f"New Update:- Order No.: {i['orderNumber']} | Status: {i['orderStatus']}")
+                    logger.info(f"New Update:- Order No.: {orderNumber} | Status: {orderStatus}")
                     txt = (
-                        f"Status: {i['orderStatus']}\n"
-                        f"Type: {i['tradeType']}\n"
-                        f"Price: {i['unitPrice']}\n"
+                        f"Status: {status.get(orderStatus)}\n"
+                        f"Type: {side.get(i['tradeType'])}\n"
+                        f"Price: {i['fiatSymbol']}{i['unitPrice']}\n"
                         f"Fiat Amount: {float(i['totalPrice'])} {i['fiat']}\n"
                         f"Crypto Amount: {float(i['amount'])} {i['asset']}\n"
-                        f"Order No.: {i['orderNumber']}"
+                        f"Order No.: <a href='{link}{orderNumber}'>{orderNumber}</a>"
                     )
-                    used_orders[i['orderNumber']] = i['orderStatus']
+                    used_orders[orderStatus] = orderStatus
                     send_message(TELEGRAM_CHAT_ID, txt)
                 else:
-                    if ex == i['orderStatus']:
+                    if ex == orderStatus:
                         pass
                     else:
-                        logger.info(f"New Update:- Order No.: {i['orderNumber']} | Status: {i['orderStatus']}")
+                        logger.info(f"New Update:- Order No.: {orderNumber} | Status: {orderStatus}")
                         txt = (
-                            f"Status: {i['orderStatus']}\n"
-                            f"Type: {i['tradeType']}\n"
-                            f"Price: {i['unitPrice']}\n"
+                            f"Status: {status.get(orderStatus)}\n"
+                            f"Type: {side.get(i['tradeType'])}\n"
+                            f"Price: {i['fiatSymbol']}{i['unitPrice']}\n"
                             f"Fiat Amount: {float(i['totalPrice'])} {i['fiat']}\n"
                             f"Crypto Amount: {float(i['amount'])} {i['asset']}\n"
-                            f"Order No.: {i['orderNumber']}"
+                            f"Order No.: <a href='{link}{orderNumber}'>{orderNumber}</a>"
                         )
-                        used_orders[i['orderNumber']] = i['orderStatus']
+                        used_orders[orderStatus] = orderStatus
                         send_message(TELEGRAM_CHAT_ID, txt)
         time.sleep(1)
     except Exception as e:
