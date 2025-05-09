@@ -27,7 +27,7 @@ TELEGRAM_CHAT_ID=your telegram chat id
 BINANCE_API_KEY=binance api key
 BINANCE_SECRET_KEY=binance api secret
 ```
-- install using this Command `pip3 install requirements.txt` or `pip3 install requests python-binance python-dotenv`
+- install using this Command `pip3 install -r requirements.txt` or `pip3 install requests python-binance python-dotenv`
 - Run using this Command `python3 app.py`
 <h4>DEPLOY TO HEROKU</h4>
 
